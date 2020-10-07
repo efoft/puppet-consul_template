@@ -9,20 +9,27 @@ class consul_template::config (
 ) {
 
   $config_base = {
-    consul => 'localhost:8500',
+    consul => {
+      'address' => 'localhost:8500',
+      'retry'     => {
+        'enabled'  => true,
+        'attempts' => 12,
+        'backoff'  => '250ms',
+      }
+    }
   }
   $_config_hash = deep_merge($config_base, $config_defaults, $config_hash)
 
   # Using our parent module's pretty_config & pretty_config_indent just because
-  $content_full = consul_template_sorted_json($_config_hash, $consul_template::pretty_config, $consul_template::pretty_config_indent)
-  # remove the closing }
-  $content = regsubst($content_full, '}$', '')
+  $content_full = to_json_pretty($_config_hash)
+  # remove the last closing }
+  $content = regsubst(regsubst($content_full, '^}$', ''), '^  }$', '  },')
 
   $concat_name = 'consul-template/config.json'
   concat::fragment { 'consul-service-pre':
     target  => $concat_name,
     # add the opening template array so that we can insert watch fragments
-    content => "${content},\n    \"template\": [\n",
+    content => "${content}  \"template\": [\n",
     order   => '1',
   }
 
@@ -33,7 +40,7 @@ class consul_template::config (
   concat::fragment { 'consul-service-post':
     target  => $concat_name,
     # close off the template array and the whole object
-    content => "    ]\n}",
+    content => "  ]\n}",
     order   => '99',
   }
 

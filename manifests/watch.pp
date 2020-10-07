@@ -46,14 +46,14 @@ define consul_template::watch (
   }
 
   $config_hash_all = deep_merge($_config_hash, $config_source)
-  $content_full = consul_template_sorted_json($config_hash_all, $consul_template::pretty_config, $consul_template::pretty_config_indent)
+  $content_full = to_json_pretty($config_hash_all)
   $content = regsubst(regsubst($content_full, "}\n$", '}'), "\n", "\n    ", 'G')
 
   @concat::fragment { $frag_name:
     target  => 'consul-template/config.json',
     # NOTE: this will result in all watches having , after them in the JSON
     # array. That won't pass strict JSON parsing, but luckily HCL is fine with it.
-    content => "      ${content},\n",
+    content => "    ${content},\n",
     order   => '50',
     notify  => Service['consul-template'],
     require => $fragment_requires,

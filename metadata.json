@@ -1,24 +1,22 @@
 {
-  "name": "claranet-consul_template",
-  "version": "2.1.1",
-  "author": "Claranet",
+  "name": "efoft-consul_template",
+  "version": "3.0.0",
+  "author": "Forked from Claranet",
   "summary": "Install and manage Consul Template and its jobs",
   "license": "Apache-2.0",
-  "source": "https://github.com/claranet/puppet-consul_template",
-  "project_page": "https://github.com/claranet/puppet-consul_template",
-  "issues_url": "https://github.com/claranet/puppet-consul_template/issues",
+  "source": "https://github.com/efoft/puppet-consul_template",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.13.1 < 6.0.0"
+      "version_requirement": ">= 4.13.1 < 7.0.0"
     },
     {
       "name": "puppetlabs/concat",
-      "version_requirement": ">= 2.2.0 < 5.0.0"
+      "version_requirement": ">= 2.2.0 < 7.0.0"
     },
     {
-      "name": "puppet/staging",
-      "version_requirement": ">= 3.0.0 <= 4.0.0"
+      "name": "puppet/archive",
+      "version_requirement": ">= 3.0.0 <= 5.0.0"
     }
   ],
   "operatingsystem_support": [
@@ -55,10 +53,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.7.1 < 6.0.0"
+      "version_requirement": ">= 4.7.1 < 7.0.0"
     }
-  ],
-  "pdk-version": "1.7.0",
-  "template-url": "file:///opt/puppetlabs/pdk/share/cache/pdk-templates.git",
-  "template-ref": "1.7.0-0-g57412ed"
+  ]
 }

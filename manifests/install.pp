@@ -12,30 +12,31 @@ class consul_template::install {
   }
 
   if $consul_template::install_method == 'url' {
+      $archive_bin_dir  = "/opt/consul-template-${consul_template::version}"
+      $archive_bin_path = "${archive_bin_dir}/consul-template"
 
-    include staging
-    if $facts['os']['name'] != 'darwin' {
-      ensure_packages(['tar'])
-    }
-    staging::file { "consul-template_${consul_template::version}.${consul_template::download_extension}":
-      source => $consul_template::_download_url,
-    }
-    -> file { "${staging::path}/consul-template-${consul_template::version}":
-      ensure => directory,
-    }
-    -> staging::extract { "consul-template_${consul_template::version}.${consul_template::download_extension}":
-      target  => "${staging::path}/consul-template-${consul_template::version}",
-      creates => "${staging::path}/consul-template-${consul_template::version}/consul-template",
-    }
-    -> file {
-      "${staging::path}/consul-template-${consul_template::version}/consul-template":
+      file { $archive_bin_dir:
+        ensure => directory,
+      }
+      -> archive { "/tmp/consul-template_${consul_template::version}.${consul_template::download_extension}":
+        ensure          => present,
+        extract         => true,
+        extract_path    => $archive_bin_dir,
+        source          => $consul_template::_download_url,
+        checksum_verify => false,
+        creates         => $archive_bin_path,
+        cleanup         => true,
+      }
+      -> file { $archive_bin_path:
         owner => 'root',
         group => 0, # 0 instead of root because OS X uses "wheel".
-        mode  => '0555';
-      "${consul_template::bin_dir}/consul-template":
+        mode  => '0555',
+      }
+      -> file { '/usr/local/bin/consul-template':
         ensure => link,
-        target => "${staging::path}/consul-template-${consul_template::version}/consul-template";
-    }
+        notify => Service['consul-template'],
+        target => $archive_bin_path,
+      }
 
   } elsif $consul_template::install_method == 'package' {
 
